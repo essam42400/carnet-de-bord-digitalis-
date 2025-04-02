@@ -2,22 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <!-- Meta viewport pour une bonne adaptation sur mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Enregistrer une panne</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <script>
-    // Afficher le champ personnalisé si "Autres" est sélectionné pour le type d'engin
     function checkEnginType(value) {
-      var customField = document.getElementById('customField');
-      customField.style.display = (value === 'Autres') ? 'block' : 'none';
+      document.getElementById('customField').style.display = (value === 'Autres') ? 'block' : 'none';
     }
-    
-    // Afficher ou masquer le champ "Temps perdu" en fonction de l'impact sur la régularité
     function checkImpact(value) {
-      var tempsField = document.getElementById('tempsPerduField');
-      tempsField.style.display = (value === 'oui') ? 'block' : 'none';
+      document.getElementById('tempsPerduField').style.display = (value === 'oui') ? 'block' : 'none';
     }
-    
-    // Fonction pour démarrer la dictée vocale
     function startDictation() {
       var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (typeof SpeechRecognition !== "undefined") {
@@ -25,15 +20,12 @@
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = "fr-FR";
-        
         recognition.start();
-        
         recognition.onresult = function(event) {
           var transcript = event.results[0][0].transcript;
           var textArea = document.getElementById("detailedDescription");
           textArea.value += transcript;
         };
-
         recognition.onerror = function(event) {
           console.error("Erreur de dictée :", event.error);
         };
@@ -41,10 +33,7 @@
         alert("Votre navigateur ne supporte pas la dictée vocale.");
       }
     }
-    
-    // Fonction pour ouvrir la fenêtre de mail pré-remplie avec les infos du formulaire
     function openMail() {
-      // Récupération des valeurs du formulaire
       var enginType = document.getElementsByName('engin_type')[0].value;
       var enginNum = document.getElementsByName('engin_num')[0].value;
       var datePanne = document.getElementsByName('date_panne')[0].value;
@@ -80,14 +69,9 @@
       }
       body += "Demande de secours : " + demandeSecours + "\n";
       
-      // Encodage des valeurs pour l'URL
       subject = encodeURIComponent(subject);
       body = encodeURIComponent(body);
-      
-      // Construction du lien mailto (sans destinataire)
       var mailto_link = "mailto:?subject=" + subject + "&body=" + body;
-      
-      // Ouvrir le client mail par défaut avec les informations pré-remplies
       window.location.href = mailto_link;
     }
   </script>
@@ -98,10 +82,10 @@
     <form method="POST" enctype="multipart/form-data">
       <label>Date de la panne :</label>
       <input type="date" name="date_panne" required>
-
+      
       <label>Nom Prénom du conducteur :</label>
       <input type="text" name="conducteur" required>
-
+      
       <label>Type d'engin :</label>
       <select name="engin_type" onchange="checkEnginType(this.value)" required>
         <option value="G1206">G1206</option>
@@ -112,26 +96,24 @@
         <option value="Petite Engin">Petite Engin</option>
         <option value="Autres">Autres</option>
       </select>
-
       <div id="customField" style="display:none;">
         <label>Précisez le type d'engin :</label>
         <input type="text" name="engin_type_custom">
       </div>
-
+      
       <label>Numéro d'engin moteur :</label>
       <input type="text" name="engin_num" required>
-
-      <!-- Champ de localisation textuelle -->
+      
       <label>Localisation :</label>
       <input type="text" name="localisation" placeholder="Ville, lieu-dit, village et code postal" required>
       <p class="help-text">
         Saisissez ici le nom de la ville ou du lieu-dit à proximité, ou le village avec son code postal.<br>
         Pour vous aider, consultez <a href="https://carto.tchoo.net/" target="_blank">ce service de cartographie</a>.
       </p>
-
+      
       <label>Lieu complémentaire (texte) :</label>
       <input type="text" name="lieu_text" placeholder="Informations complémentaires sur le lieu">
-
+      
       <label>Description de la panne (organe concerné) :</label>
       <select name="description" required>
         <option value="Moteur">Moteur</option>
@@ -140,23 +122,21 @@
         <option value="Complément niveau">Complément niveau</option>
         <option value="Manquement des agrès">Manquement des agrès</option>
       </select>
-
-      <!-- Champ pour une description détaillée avec possibilité de dictée vocale -->
+      
       <label>Description détaillée de la panne (dictée ou saisie libre) :</label>
       <textarea id="detailedDescription" name="detailed_description" rows="4" placeholder="Décrivez librement la panne..."></textarea>
       <button type="button" onclick="startDictation()">Démarrer la dictée</button>
-
+      
       <label>Prendre des photos (max 3) :</label>
       <input type="file" name="photo1" accept="image/*">
       <input type="file" name="photo2" accept="image/*">
       <input type="file" name="photo3" accept="image/*">
-
+      
       <label>Impact sur la régularité :</label>
       <select name="impact_reg" onchange="checkImpact(this.value)" required>
         <option value="non">Non</option>
         <option value="oui">Oui</option>
       </select>
-
       <div id="tempsPerduField" style="display:none;">
         <label>Temps perdu :</label>
         <select name="temps_perdu">
@@ -165,27 +145,23 @@
           <option value="plus de 3 heures">Plus de 3 heures</option>
         </select>
       </div>
-
+      
       <label>Demande de secours :</label>
       <select name="demande_secours" required>
         <option value="non">Non</option>
         <option value="oui">Oui</option>
       </select>
-
+      
       <button type="button" onclick="alert('Fonction d\'archivage non implémentée')">
         Archiver sur la mémoire du téléphone
       </button>
-
+      
       <button type="submit">Envoyer</button>
     </form>
-    
     <br>
     <a href="{{ url_for('records') }}">Voir l'historique des pannes</a>
-    
-    <!-- Nouveau bouton pour ouvrir une nouvelle fenêtre mail pré-remplie -->
     <br><br>
     <button type="button" onclick="openMail()">Envoyer la panne par email</button>
-    
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div class="flash">

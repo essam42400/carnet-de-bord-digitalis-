@@ -1,4 +1,4 @@
-/* style.css */
+/* Styles généraux */
 body {
     font-family: Arial, sans-serif;
     background: #f5f5f5;
@@ -15,18 +15,14 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
   
-  h2 {
-    text-align: center;
-    color: #333;
-  }
-  
+  /* Formulaire */
   form label {
     display: block;
     margin-top: 10px;
     font-weight: bold;
   }
   
-  form input, form select, form button {
+  form input, form select, form textarea, form button {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
@@ -47,6 +43,7 @@ body {
     background: #0056b3;
   }
   
+  /* Tableau */
   table {
     width: 100%;
     border-collapse: collapse;
@@ -67,6 +64,7 @@ body {
     color: #fff;
   }
   
+  /* Flash messages */
   .flash {
     margin-top: 20px;
     background: #fdecea;
@@ -74,5 +72,25 @@ body {
     padding: 10px;
     border-radius: 4px;
     text-align: center;
+  }
+  
+  /* Aide texte */
+  .help-text {
+    font-size: 0.9em;
+    color: #555;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 600px) {
+    body {
+      padding: 10px;
+    }
+    .container {
+      padding: 10px;
+      max-width: 100%;
+    }
+    h2 {
+      font-size: 1.5em;
+    }
   }
   

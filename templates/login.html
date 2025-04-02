@@ -2,6 +2,8 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <!-- Meta viewport pour optimiser l'affichage sur smartphone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Connexion</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -17,7 +19,6 @@
       
       <button type="submit">Se connecter</button>
     </form>
-    
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <div class="flash">
