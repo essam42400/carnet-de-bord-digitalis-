@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Historique des pannes</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h2>Historique des pannes par numéro d'engin</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Numéro d'engin</th>
+          <th>Date</th>
+          <th>Conducteur</th>
+          <th>Description</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for panne in pannes %}
+        <tr>
+          <td>{{ panne.engin_num }}</td>
+          <td>{{ panne.date_panne.strftime('%d/%m/%Y') if panne.date_panne else '' }}</td>
+          <td>{{ panne.conducteur }}</td>
+          <td>{{ panne.description }}</td>
+          <td>
+            {% if panne.status == 'repaired' %}
+              <span title="Réparée">&#x2705;</span>
+            {% elif panne.status == 'not taken' %}
+              <span title="Non prise en compte">&#x274C;</span>
+            {% else %}
+              <span title="En attente de réparation">&#x26A0;</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('index') }}">Retour au formulaire</a>
+  </div>
+</body>
+</html>

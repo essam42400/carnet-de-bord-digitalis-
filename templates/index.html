@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Enregistrer une panne</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    // Afficher le champ personnalisé si "Autres" est sélectionné pour le type d'engin
+    function checkEnginType(value) {
+      var customField = document.getElementById('customField');
+      customField.style.display = (value === 'Autres') ? 'block' : 'none';
+    }
+    
+    // Afficher ou masquer le champ "Temps perdu" en fonction de l'impact sur la régularité
+    function checkImpact(value) {
+      var tempsField = document.getElementById('tempsPerduField');
+      tempsField.style.display = (value === 'oui') ? 'block' : 'none';
+    }
+    
+    // Fonction pour démarrer la dictée vocale
+    function startDictation() {
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (typeof SpeechRecognition !== "undefined") {
+        var recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = "fr-FR";
+        
+        recognition.start();
+        
+        recognition.onresult = function(event) {
+          var transcript = event.results[0][0].transcript;
+          var textArea = document.getElementById("detailedDescription");
+          textArea.value += transcript;
+        };
+
+        recognition.onerror = function(event) {
+          console.error("Erreur de dictée :", event.error);
+        };
+      } else {
+        alert("Votre navigateur ne supporte pas la dictée vocale.");
+      }
+    }
+    
+    // Fonction pour ouvrir la fenêtre de mail pré-remplie avec les infos du formulaire
+    function openMail() {
+      // Récupération des valeurs du formulaire
+      var enginType = document.getElementsByName('engin_type')[0].value;
+      var enginNum = document.getElementsByName('engin_num')[0].value;
+      var datePanne = document.getElementsByName('date_panne')[0].value;
+      var conducteur = document.getElementsByName('conducteur')[0].value;
+      var localisation = document.getElementsByName('localisation')[0].value;
+      var lieuText = document.getElementsByName('lieu_text')[0].value;
+      var description = document.getElementsByName('description')[0].value;
+      var detailedDesc = document.getElementById('detailedDescription').value;
+      var impactReg = document.getElementsByName('impact_reg')[0].value;
+      var tempsPerdu = "";
+      if (impactReg === "oui") {
+        tempsPerdu = document.getElementsByName('temps_perdu')[0].value;
+      }
+      var demandeSecours = document.getElementsByName('demande_secours')[0].value;
+      
+      // Construction de l'objet du mail : PANNE [type] [numéro]
+      var subject = "PANNE " + enginType + " " + enginNum;
+      
+      // Construction du corps du mail
+      var body = "Bonjour,\n\n";
+      body += "Vous trouverez ci-dessous la panne de l'engin cité en objet.\n\n";
+      body += "Date de la panne : " + datePanne + "\n";
+      body += "Conducteur : " + conducteur + "\n";
+      body += "Type d'engin : " + enginType + "\n";
+      body += "Numéro d'engin : " + enginNum + "\n";
+      body += "Localisation : " + localisation + "\n";
+      body += "Lieu complémentaire : " + lieuText + "\n";
+      body += "Description de la panne : " + description + "\n";
+      body += "Description détaillée : " + detailedDesc + "\n";
+      body += "Impact sur la régularité : " + impactReg + "\n";
+      if (impactReg === "oui") {
+        body += "Temps perdu : " + tempsPerdu + "\n";
+      }
+      body += "Demande de secours : " + demandeSecours + "\n";
+      
+      // Encodage des valeurs pour l'URL
+      subject = encodeURIComponent(subject);
+      body = encodeURIComponent(body);
+      
+      // Construction du lien mailto (sans destinataire)
+      var mailto_link = "mailto:?subject=" + subject + "&body=" + body;
+      
+      // Ouvrir le client mail par défaut avec les informations pré-remplies
+      window.location.href = mailto_link;
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h2>Enregistrer une panne</h2>
+    <form method="POST" enctype="multipart/form-data">
+      <label>Date de la panne :</label>
+      <input type="date" name="date_panne" required>
+
+      <label>Nom Prénom du conducteur :</label>
+      <input type="text" name="conducteur" required>
+
+      <label>Type d'engin :</label>
+      <select name="engin_type" onchange="checkEnginType(this.value)" required>
+        <option value="G1206">G1206</option>
+        <option value="BB60000">BB60000</option>
+        <option value="G1000">G1000</option>
+        <option value="Euro 4000">Euro 4000</option>
+        <option value="V211">V211</option>
+        <option value="Petite Engin">Petite Engin</option>
+        <option value="Autres">Autres</option>
+      </select>
+
+      <div id="customField" style="display:none;">
+        <label>Précisez le type d'engin :</label>
+        <input type="text" name="engin_type_custom">
+      </div>
+
+      <label>Numéro d'engin moteur :</label>
+      <input type="text" name="engin_num" required>
+
+      <!-- Champ de localisation textuelle -->
+      <label>Localisation :</label>
+      <input type="text" name="localisation" placeholder="Ville, lieu-dit, village et code postal" required>
+      <p class="help-text">
+        Saisissez ici le nom de la ville ou du lieu-dit à proximité, ou le village avec son code postal.<br>
+        Pour vous aider, consultez <a href="https://carto.tchoo.net/" target="_blank">ce service de cartographie</a>.
+      </p>
+
+      <label>Lieu complémentaire (texte) :</label>
+      <input type="text" name="lieu_text" placeholder="Informations complémentaires sur le lieu">
+
+      <label>Description de la panne (organe concerné) :</label>
+      <select name="description" required>
+        <option value="Moteur">Moteur</option>
+        <option value="Frein">Frein</option>
+        <option value="Tampon">Tampon</option>
+        <option value="Complément niveau">Complément niveau</option>
+        <option value="Manquement des agrès">Manquement des agrès</option>
+      </select>
+
+      <!-- Champ pour une description détaillée avec possibilité de dictée vocale -->
+      <label>Description détaillée de la panne (dictée ou saisie libre) :</label>
+      <textarea id="detailedDescription" name="detailed_description" rows="4" placeholder="Décrivez librement la panne..."></textarea>
+      <button type="button" onclick="startDictation()">Démarrer la dictée</button>
+
+      <label>Prendre des photos (max 3) :</label>
+      <input type="file" name="photo1" accept="image/*">
+      <input type="file" name="photo2" accept="image/*">
+      <input type="file" name="photo3" accept="image/*">
+
+      <label>Impact sur la régularité :</label>
+      <select name="impact_reg" onchange="checkImpact(this.value)" required>
+        <option value="non">Non</option>
+        <option value="oui">Oui</option>
+      </select>
+
+      <div id="tempsPerduField" style="display:none;">
+        <label>Temps perdu :</label>
+        <select name="temps_perdu">
+          <option value="moins d'une heure">Moins d'une heure</option>
+          <option value="1-3 heures">1-3 heures</option>
+          <option value="plus de 3 heures">Plus de 3 heures</option>
+        </select>
+      </div>
+
+      <label>Demande de secours :</label>
+      <select name="demande_secours" required>
+        <option value="non">Non</option>
+        <option value="oui">Oui</option>
+      </select>
+
+      <button type="button" onclick="alert('Fonction d\'archivage non implémentée')">
+        Archiver sur la mémoire du téléphone
+      </button>
+
+      <button type="submit">Envoyer</button>
+    </form>
+    
+    <br>
+    <a href="{{ url_for('records') }}">Voir l'historique des pannes</a>
+    
+    <!-- Nouveau bouton pour ouvrir une nouvelle fenêtre mail pré-remplie -->
+    <br><br>
+    <button type="button" onclick="openMail()">Envoyer la panne par email</button>
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+</body>
+</html>
